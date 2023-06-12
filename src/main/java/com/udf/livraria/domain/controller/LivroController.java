@@ -8,6 +8,7 @@ import javax.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,7 @@ import com.udf.livraria.domain.model.Livro;
 import com.udf.livraria.domain.services.LivroService;
 
 @RestController
-@RequestMapping("/livro")
+@RequestMapping("/livraria")
 public class LivroController {
 
   private final LivroService service;
@@ -42,19 +43,30 @@ public class LivroController {
     // Caso exista retorna (ok = 200) | Caso não exista retorna (no content = 204)
     return resultado != null ? ResponseEntity.ok(resultado) : ResponseEntity.noContent().build();
   }
-
-  @GetMapping("/filtrar")
-  public ResponseEntity<List<LivroDTO>> filtraPorAutor(String titulo) throws LivroNotFoundException {
-    // Consulta os livros através do titulo no service
-    List<Livro> livros = service.filtraPorTitulo(titulo);
+  
+  @GetMapping("/buscar/{id}")
+  public ResponseEntity<LivroDTO> buscaLivroPorId(@PathVariable("id") Long id) throws LivroNotFoundException {
+    // Busca os livros através do service
+    Livro livro = service.buscaLivroPorId(id);
     // Converte a entidade para dto
-    var resultado = livros.stream().map(mapper::toDto).collect(Collectors.toList());
+    var resultado = mapper.toDto(livro);
     // Caso exista retorna (ok = 200) | Caso não exista retorna (no content = 204)
     return resultado != null ? ResponseEntity.ok(resultado) : ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/salvar")
-  public ResponseEntity<LivroDTO> salvaLivro(@RequestBody LivroDTO livroDTO) throws LivroAlreadyExistException {
+
+  @GetMapping("/filtrar")
+  public ResponseEntity<LivroDTO> filtraPorTitulo(String titulo) throws LivroNotFoundException {
+    // Consulta os livros através do titulo no service
+    Livro livro = service.filtraPorTitulo(titulo);
+    // Converte a entidade para dto
+    var resultado = mapper.toDto(livro);
+    // Caso exista retorna (ok = 200) | Caso não exista retorna (no content = 204)
+    return resultado != null ? ResponseEntity.ok(resultado) : ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/cadastrar")
+  public ResponseEntity<LivroDTO> cadastraLivro(@RequestBody LivroDTO livroDTO) throws LivroAlreadyExistException {
     // Salva o livro através do service
     var resposta = service.salvaLivro(livroDTO);
     // Retorna a conversão para dto do entidade salva (created = 201)

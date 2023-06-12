@@ -1,6 +1,5 @@
 package com.udf.livraria.domain.services;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class LivroService {
    * @param titulo
    * @return
    */
-  public List<Livro> filtraPorTitulo(String titulo) {
+  public Livro filtraPorTitulo(String titulo) {
     // Retorna a consulta do livro no banco de dados atravéz do titulo e, caso não encotre, dispara uma excessão
     return repository.findLivroByTitulo(titulo)
         .orElseThrow(() -> new LivroNotFoundException("O livro com o titulo '" + titulo + "' não foi encontrado"));
@@ -87,8 +86,8 @@ public class LivroService {
       if (novoLivro != null) {
         // Consulta o livro atravéz do título
         var buscarLivroPorTitulo = repository.findByTitulo(livroDTO.getTitulo());
-        // Verifica se o livro foi encontrado
-        if (buscarLivroPorTitulo == null) {
+        // Verifica se não existe um livro com o mesmo título
+        if (buscarLivroPorTitulo.size() == 0) {
           // Atualiza o livro populando um novo objeto com os dados atualizados
           novoLivro.setIsbn(livroDTO.getIsbn().trim());
           novoLivro.setTitulo(livroDTO.getTitulo().trim());
@@ -107,7 +106,7 @@ public class LivroService {
       // Consulta o livro atravéz do título
       var buscarLivroPorTitulo = repository.findByTitulo(livroDTO.getTitulo());
       // Verifica se o livro foi encontrado
-      if (buscarLivroPorTitulo == null) {
+      if (buscarLivroPorTitulo.size() == 0) {
         // Converte o dto para entidade
         novoLivro = mapper.toEntity(livroDTO);
       } else {
@@ -133,10 +132,9 @@ public class LivroService {
     if (livro == null) {
       // Dispara uma excessão caso o livro não for encontrado
       throw new LivroNotFoundException("O livro com o id '" + id + "' não foi encontrado");
-    } else {
-      // Deleta o livro do banco de dados
-      repository.delete(livro);
     }
+    // Deleta o livro do banco de dados
+    repository.delete(livro);
   }
 
 }

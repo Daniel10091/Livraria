@@ -1,4 +1,4 @@
-package com.udf.livraria.exceptionHandler;
+package com.udf.livraria.domain.exceptionHandler;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
